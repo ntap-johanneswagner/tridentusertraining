@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: sc-san
+#    annotations:
+#      storageclass.kubernetes.io/is-default-class: "true"
+provisioner: csi.trident.netapp.io
+parameters:
+  backendType: "ontap-san"
+  fsType: "ext4"
+# ext3, ext4 or xfs are possible fsType values, be aware that xfs has no automatic filesystem repair
+mountOptions:
+   - discard
+allowVolumeExpansion: true

@@ -1,0 +1,18 @@
+apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-ontap-nas-economy
+  namespace: <trident-namespace>
+spec:
+  version: 1
+  backendName: nas-economy
+  useRest: false
+  storageDriverName: ontap-nas-economy
+  managementLIF: <ip of svm mgmt lif>
+  autoExportCIDRs:
+    - <ip subnet of k8s nodes>
+  autoExportPolicy: true
+  defaults:
+    nameTemplate: "{{ .volume.Namespace }}_{{ .volume.RequestName }}_{{ .volume.Name }}"
+  credentials:
+    name: secret-svm

@@ -1,0 +1,152 @@
+---
+- hosts: localhost
+  collections:
+    - netapp.ontap
+
+  vars:
+    ontap_parameters: &ontap_parameters
+      hostname: "{{ hostname }}" 
+      username: "{{ username }}" 
+      password: "{{ password }}"
+      https: true
+      validate_certs: false
+
+  name: labsvm SVM Creation
+  tasks:
+  - name: Create SVM
+    netapp.ontap.na_ontap_svm:
+     state: present
+     name: "labsvm"
+     allowed_protocols: nfs,iscsi
+     <<: *ontap_parameters
+
+  - name: Create Specific User
+    netapp.ontap.na_ontap_user:
+     state: present
+     name: trident
+     applications: ontapi,http
+     authentication_method: password
+     set_password: Netapp1!
+     lock_user: False
+     role_name: vsadmin
+     vserver: labsvm
+     <<: *ontap_parameters
+
+  - name: Enable NFS
+    netapp.ontap.na_ontap_nfs:
+     state: present
+     service_state: started
+     vserver: labsvm 
+     nfsv3: enabled
+     nfsv4: enabled
+     nfsv41: enabled
+     <<: *ontap_parameters
+
+  - name: Create ExportPolicyRule for the default policy
+    netapp.ontap.na_ontap_export_policy_rule:
+     state: present
+     policy_name: default
+     vserver: labsvm
+     rule_index: 1
+     client_match: 192.168.0.0/24
+     ro_rule: any
+     rw_rule: any
+     protocol: any
+     super_user_security: any
+     allow_suid: true
+     <<: *ontap_parameters
+
+  - name: Enable iSCSI
+    netapp.ontap.na_ontap_iscsi:
+     state: present
+     service_state: started
+     vserver: labsvm 
+     <<: *ontap_parameters
+
+  - name: Create Service Policy for Management (Core)
+    netapp.ontap.na_ontap_command:
+      command: ['network', 'interface', 'service-policy', 'create', '-policy', 'labsvm_management', '-vserver', 'labsvm',  '-allowed-addresses', '192.168.0.60/24', '-service', 'data-core']
+      privilege: "advanced"
+      <<: *ontap_parameters
+
+  - name: Create Service Policy for Management (HTTPS)
+    netapp.ontap.na_ontap_command:
+      command: ['network', 'interface', 'service-policy', 'add-service', '-policy', 'labsvm_management', '-vserver', 'labsvm',  '-allowed-addresses', '192.168.0.60/24', '-service', 'management-https']
+      privilege: "advanced"
+      <<: *ontap_parameters
+
+  - name: Create Service Policy for NFS (Core)
+    netapp.ontap.na_ontap_command:
+      command: ['network', 'interface', 'service-policy', 'create', '-policy', 'labsvm_nfs', '-vserver', 'labsvm',  '-allowed-addresses', '0.0.0.0/0', '-service', 'data-core']
+      privilege: "advanced"      
+      <<: *ontap_parameters
+
+  - name: Create Service Policy for NFS (Data)
+    netapp.ontap.na_ontap_command:
+      command: ['network', 'interface', 'service-policy', 'add-service', '-policy', 'labsvm_nfs', '-vserver', 'labsvm',  '-allowed-addresses', '0.0.0.0/0', '-service', 'data-nfs']
+      privilege: "advanced"      
+      <<: *ontap_parameters
+
+  - name: Create Service Policy for iSCSI (Core)
+    netapp.ontap.na_ontap_command:
+      command: ['network', 'interface', 'service-policy', 'create', '-policy', 'labsvm_iscsi', '-vserver', 'labsvm',  '-allowed-addresses', '0.0.0.0/0', '-service', 'data-core']
+      privilege: "advanced"      
+      <<: *ontap_parameters
+
+  - name: Create Service Policy for iSCSI (Data)
+    netapp.ontap.na_ontap_command:
+      command: ['network', 'interface', 'service-policy', 'add-service', '-policy', 'labsvm_iscsi', '-vserver', 'labsvm',  '-allowed-addresses', '0.0.0.0/0', '-service', 'data-iscsi']
+      privilege: "advanced"      
+      <<: *ontap_parameters
+
+  - name: Create Mgmt Interface
+    netapp.ontap.na_ontap_interface:
+      state: present
+      interface_name: labsvm_mgmt
+      home_port: e0c
+      home_node: cluster1-01
+      admin_status: up
+      service_policy: labsvm_management
+      address: 192.168.0.140
+      netmask: 255.255.255.0
+      vserver: labsvm
+      <<: *ontap_parameters
+
+  - name: Create NFS Interface
+    netapp.ontap.na_ontap_interface:
+      state: present
+      interface_name: labsvm_nfs
+      home_port: e0d
+      home_node: cluster1-01
+      admin_status: up
+      service_policy: labsvm_nfs
+      address: 192.168.0.141
+      netmask: 255.255.255.0
+      vserver: labsvm
+      <<: *ontap_parameters
+
+  - name: Create iSCSI Interface#1
+    netapp.ontap.na_ontap_interface:
+      state: present
+      interface_name: labsvm_iscsi_001
+      home_port: e0c
+      home_node: cluster1-01
+      admin_status: up
+      service_policy: labsvm_iscsi
+      address: 192.168.0.142
+      netmask: 255.255.255.0
+      vserver: labsvm
+      <<: *ontap_parameters
+
+  - name: Create iSCSI Interface#2
+    netapp.ontap.na_ontap_interface:
+      state: present
+      interface_name: labsvm_iscsi_002
+      home_port: e0d
+      home_node: cluster1-01
+      admin_status: up
+      service_policy: labsvm_iscsi
+      address: 192.168.0.143
+      netmask: 255.255.255.0
+      vserver: labsvm
+      <<: *ontap_parameters

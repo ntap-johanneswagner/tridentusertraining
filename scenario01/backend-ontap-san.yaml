@@ -1,0 +1,16 @@
+apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-ontap-san
+  namespace: <trident-namespace>
+spec:
+  version: 1
+  backendName: san
+  useRest: false
+  storageDriverName: ontap-san
+  managementLIF: <ip of svm mgmt lif>
+  useCHAP: true
+  defaults:
+    nameTemplate: "{{ .volume.Namespace }}_{{ .volume.RequestName }}_{{ .volume.Name }}"
+  credentials:
+    name: secret-svm
