@@ -290,7 +290,7 @@ echo "#################################################################"
 helm repo add netapp-trident https://netapp.github.io/trident-helm-chart
 helm install trident netapp-trident/trident-operator --version 100.2510.0 --create-namespace --namespace trident --set tridentAutosupportImage=registry.demo.netapp.com/trident-autosupport:25.10.0,operatorImage=registry.demo.netapp.com/trident-operator:25.10.0,tridentImage=registry.demo.netapp.com/trident:25.10.0,tridentSilenceAutosupport=true,windows=true,imagePullSecrets[0]=regcred
 frames="/ | \\ -"
-while [ $(kubectl get pods -n trident | wc | awk '{print $1}') != 7 ];do
+while [ $(kubectl get pods -n trident | wc | awk '{print $1}') != 8 ];do
         for frame in $frames; do
                 sleep 0.5; printf "\rWaiting for Trident to be installed $frame"
         done
