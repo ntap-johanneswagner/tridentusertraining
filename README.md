@@ -296,6 +296,8 @@ This could also have been achieved by using the *kubectl patch* command. Try the
 kubectl patch -n resize pvc iscsistorage -p '{"spec":{"resources":{"requests":{"storage":"20Gi"}}}}'
 ```
 
+Note: This can take some seconds as not only the pvc needs to be resized but also the filesystem needs to be adjusted. 
+
 So increasing is easy, what about decreasing? Try to set your volume to a lower space, use the edit or the patch mechanism from above.
 ___
 
