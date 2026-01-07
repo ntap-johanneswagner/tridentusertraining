@@ -183,6 +183,7 @@ If there are errors or things stuck in pending, the first you should do is to ha
 
 Also let's try out whether we really can write data and read it again:
 
+STEP 1 - Write the data:
 ```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas driver!" > /nas/test.txt'
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas-economy driver!" > /naseco/test.txt'
@@ -202,6 +203,7 @@ kubectl exec -n sanapp $(kubectl get pod -n sanapp -o name) -- sh -c 'echo "Hell
 kubectl exec -n sanecoapp $(kubectl get pod -n sanecoapp -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-san-economy driver!" > /saneco/test.txt'
 ```
 
+STEP 2 - Read the data:
 
 ```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /nas/test.txt
