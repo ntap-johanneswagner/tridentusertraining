@@ -1,7 +1,4 @@
-## :trident: Prework - Get LoD Ready
-
-For this Hands-on Workshop, we are going to use Lab on Demand. Please enroll yourself the following Lab:
-https://labondemand.netapp.com/node/878
+## :trident: Prelude
 
 First a big thank you to [Yves Weisser](github.com/yvosonthehub) as his LabNetApp repository is the foundation of this training material. I highly recommend to have look at his work and redo this from time to time as he is doing a tremendous job, explaining all the Trident functionalities with real good examples. 
 
@@ -9,25 +6,33 @@ First a big thank you to [Yves Weisser](github.com/yvosonthehub) as his LabNetAp
 
 Access the host *rhel3* via putty and clone this github repo
 
-```console
-git clone https://github.com/ntap-johanneswagner/tridentusertraining
-```
-
-After that, jump into the directory, and run the prework script This script will prepare the lab for our excercises.
-
-```console
-cd /root/tridentusertraining/
-./prework.sh
-```
-
-This will take some minutes...
-
 ## :trident: Scenario 01 - Configure Trident
 **Remember: All required files are in the folder */root/tridentusertraining/scenario01* please ensure that you are in this folder now. You can do this with the command** 
 ```console
 cd /root/tridentusertraining/scenario01
 ```
-Installation is quiet easy and straight forward, the fun begins with the configuration. 
+Installation is quiet easy and straight forward and already done, the fun begins with the configuration. Trident was installed in the Namespace trident, you can quickly have a look at the pods:
+
+```console
+kubectl get pods -n trident
+```
+
+If everything is successfull you should see one controller pod and one node pod per kubernetes node.
+
+As our cluster has 3 linux and 2 windows nodes, the output should look like this:
+```console
+k get pods -n trident
+
+NAME                                 READY   STATUS    RESTARTS   AGE
+trident-controller-5c6c9856d-jd8qc   6/6     Running   0          3m25s
+trident-node-linux-6r5h8             2/2     Running   0          3m24s
+trident-node-linux-cjkqq             2/2     Running   0          3m24s
+trident-node-linux-th7mx             2/2     Running   0          3m24s
+trident-node-windows-8cfzg           3/3     Running   0          3m23s
+trident-node-windows-nlfqs           3/3     Running   0          3m23s
+trident-operator-77f4f5f7f5-4wfb6    1/1     Running   0          4m14s
+```
+
 
 ### Backends
 
@@ -63,7 +68,8 @@ The output should look like this:
 
 ```console
 kubectl get tbc -n trident
-‌kubectl get tbc -n trident
+```
+```console
 NAME                        BACKEND NAME   BACKEND UUID                           PHASE   STATUS
 backend-ontap-nas           nas            1e4ff09a-b0ce-4709-8797-908139addd3f   Bound   Success
 backend-ontap-nas-economy   nas-economy    ecccd445-93dd-4c0b-a8c3-8e7955654620   Bound   Success
@@ -97,7 +103,8 @@ Check the status with *kubectl get sc*
 
 ```console
 kubectl get sc
-
+```
+```console
 NAME               PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
 sc-nas (default)   csi.trident.netapp.io   Delete          Immediate           true                   29s
 sc-nas-eco         csi.trident.netapp.io   Delete          Immediate           true                   29s
@@ -113,11 +120,16 @@ In our cluster, it's already installed, let's check this:
 
 ```console
 kubectl get crd | grep volumesnapshot
+```
+```console
 volumesnapshotclasses.snapshot.storage.k8s.io         2024-04-27T21:06:08Z
 volumesnapshotcontents.snapshot.storage.k8s.io        2024-04-27T21:06:08Z
 volumesnapshots.snapshot.storage.k8s.io               2024-04-27T21:06:08Z
-
+```
+```console
 kubectl get all -n kube-system -l app=snapshot-controller
+```
+```console
 NAME                                       READY   STATUS    RESTARTS   AGE
 pod/snapshot-controller-54f7648f78-lvgp2   1/1     Running   6          93d
 pod/snapshot-controller-54f7648f78-p9gvk   1/1     Running   6          93d
@@ -153,9 +165,17 @@ Apply them and have a look whether all works or if something fails.
 
 ```console
 kubectl get pods,pvc -n allstorageclasses
+```
+```console
 kubectl get pods,pvc -n nasapp
+```
+```console
 kubectl get pods,pvc -n nasecoapp
+```
+```console
 kubectl get pods,pvc -n sanapp
+```
+```console
 kubectl get pods,pvc -n sanecoapp
 ```
 
@@ -165,25 +185,52 @@ Also let's try out whether we really can write data and read it again:
 
 ```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas driver!" > /nas/test.txt'
+```
+```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas-economy driver!" > /naseco/test.txt'
+```
+```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-san driver!" > /san/test.txt'
+```
+```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-san-economy driver!" > /saneco/test.txt'
+```
+```console
 kubectl exec -n nasapp $(kubectl get pod -n nasapp -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas driver!" > /nas/test.txt'
+```
+```console
 kubectl exec -n nasecoapp $(kubectl get pod -n nasecoapp -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas-economy driver!" > /naseco/test.txt'
+```
+```console
 kubectl exec -n sanapp $(kubectl get pod -n sanapp -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-san driver!" > /san/test.txt'
+```
+```console
 kubectl exec -n sanecoapp $(kubectl get pod -n sanecoapp -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-san-economy driver!" > /saneco/test.txt'
-
 ```
 
 
 ```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /nas/test.txt
+```
+```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /naseco/test.txt
+```
+```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /san/test.txt
+```
+```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /saneco/test.txt
+```
+```console
 kubectl exec -n nasapp $(kubectl get pod -n nasapp -o name) -- more /nas/test.txt
+```
+```console
 kubectl exec -n nasecoapp $(kubectl get pod -n nasecoapp -o name) -- more /naseco/test.txt
+```
+```console
 kubectl exec -n sanapp $(kubectl get pod -n sanapp -o name) -- more /san/test.txt
+```
+```console
 kubectl exec -n sanecoapp $(kubectl get pod -n sanecoapp -o name) -- more /saneco/test.txt
 ```
 
