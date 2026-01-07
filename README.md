@@ -376,7 +376,7 @@ Recover the data of your application
 When it comes to data recovery, there are many ways to do so. If you want to recover only a single file, you can temporarily attach a PVC clone based on the snapshot to your pod and copy individual files back. Some storage systems also provide a convenient access to snapshots by presenting them as part of the filesystem (feel free to exec into the pod and look for the .snapshot folders on your PVC). However, if you want to recover everything, you can just update your application manifest to point to the clone, which is what we are going to try now:
 
 ```console
-kubectl patch -n nasapp deploy busybox -p '{"spec":{"template":{"spec":{"volumes":[{"name":"volume","persistentVolumeClaim":{"claimName":"pvcnas-from-snap"}}]}}}}'
+kubectl patch -n nasapp deploy busybox -p '{"spec":{"template":{"spec":{"volumes":[{"name":"volnas","persistentVolumeClaim":{"claimName":"pvcnas-from-snap"}}]}}}}'
 ```
 
 That will trigger a new POD creation with the updated configuration
