@@ -4,7 +4,7 @@ First a big thank you to [Yves Weisser](github.com/yvosonthehub) as his LabNetAp
 
 **The Lab guide is only needed for getting the usernames and passwords. Please ignore the tasks in the lab guide, everything you need is in this github repository.**
 
-Access the host *rhel3* via putty and clone this github repo
+Access the host *rhel3* via putty to perform all of the tasks.
 
 ## :trident: Scenario 01 - Configure Trident
 **Remember: All required files are in the folder */root/tridentusertraining/scenario01* please ensure that you are in this folder now. You can do this with the command** 
@@ -185,14 +185,8 @@ Also let's try out whether we really can write data and read it again:
 
 ```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas driver!" > /nas/test.txt'
-```
-```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-nas-economy driver!" > /naseco/test.txt'
-```
-```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-san driver!" > /san/test.txt'
-```
-```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- sh -c 'echo "Hello little Container! Trident will care about your persistent Data that is written to a pvc utilizing the ontap-san-economy driver!" > /saneco/test.txt'
 ```
 ```console
@@ -211,14 +205,8 @@ kubectl exec -n sanecoapp $(kubectl get pod -n sanecoapp -o name) -- sh -c 'echo
 
 ```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /nas/test.txt
-```
-```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /naseco/test.txt
-```
-```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /san/test.txt
-```
-```console
 kubectl exec -n allstorageclasses $(kubectl get pod -n allstorageclasses -o name) -- more /saneco/test.txt
 ```
 ```console
@@ -585,7 +573,7 @@ Magical, right? By the way, the NetApp Trident CSI driver from this lab has a si
 If you want to try that out, simply add the limitVolumeSize parameter to one of the tbcs. If you use a value of 2gb, you should be able to create the 1gb pvcs we used in the scenario right now, but none of the 5gb pvcs. However, the failure behavior is a little bit different as PVCs will be created but stuck in pending state. 
 
 :trident::trident::trident:  
-Success! Congratulations to you, if you read this lines you are at the end of this small lab. If you went through all the tasks, you were able to install and configure Trident and Trident protect, run your first app, protect, destroy and recreate it.  
+Success! Congratulations to you, if you read this lines you are at the end of this small lab.
 :trident::trident::trident:
 
 
