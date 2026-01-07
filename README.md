@@ -431,8 +431,8 @@ In-place restore will be performed by created a TASR objet ("TridentActionSnapsh
 ```console
 kubectl apply -f snapshot-restore.yaml
 ```
-```console
 To verify the status
+```console
 kubectl get -n sanapp tasr -o=jsonpath='{.items[0].status.state}'; echo
 ```
 We can now restart the pod, and browse through the PVC content.  
