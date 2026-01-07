@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: resize
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfsstorage
+  namespace: resize
+  labels:
+    app: busybox
+    volume: volnfsstorage
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: sc-nas
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: iscsistorage
+  namespace: resize
+  labels:
+    app: busybox
+    volume: voliscsistorage
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: sc-san-eco
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busybox
+  namespace: resize
+  labels:
+    app: busybox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: resize
+      app: busybox
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: resize
+        app: busybox
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+      containers:
+      - name: busybox
+        image: registry.demo.netapp.com/busybox:1.35.0
+        imagePullPolicy: IfNotPresent
+        command: ['sleep', '3600']        
+        volumeMounts:
+        - mountPath: /nfsstorage
+          name: volnfsstorage
+        - mountPath: /iscsistorage
+          name: voliscsistorage
+      volumes:
+      - name: volnfsstorage
+        persistentVolumeClaim:
+          claimName: nfsstorage
+      - name: voliscsistorage
+        persistentVolumeClaim:
+          claimName: iscsistorage

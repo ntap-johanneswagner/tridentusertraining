@@ -1,0 +1,12 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: pvcnas-snapshot
+  namespace: nasapp
+  labels:
+    app.kubernetes.io/name: nasapp
+    app: busybox
+spec:
+  volumeSnapshotClassName: csi-snap-class
+  source:
+    persistentVolumeClaimName: pvcnas

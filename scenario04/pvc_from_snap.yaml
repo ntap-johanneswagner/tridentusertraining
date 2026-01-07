@@ -1,0 +1,19 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvcnas-from-snap
+  namespace: nasapp
+  labels:
+    app.kubernetes.io/name: nasapp
+    app: busybox
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: sc-nas
+  dataSource:
+    name: pvcnas-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
